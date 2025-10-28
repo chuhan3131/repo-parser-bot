@@ -1,16 +1,26 @@
-# Repositories parser bot
-<img width="691" height="1280" alt="image" src="https://github.com/user-attachments/assets/319c495c-351f-45e3-a186-b69205c81fe4" />
+# GitHub Repo Parser Bot
+Инлайн-бот для анализа GitHub репозиториев. Получает описание, структуру файлов и README по ссылке.
 
-Телеграм-бот на **aiogram**, который в инлайн-режиме разбирает GitHub репозиторий по ссылке.  
+<img width="368,75" height="800" alt="изображение" src="https://github.com/user-attachments/assets/c36159d3-d695-46f3-aba0-fc50a38b80da" />
 
-### Возможности
-- Получение описания репозитория, звёзд, языка и ветки.
-- Вывод дерева файлов.
-- Получение содержимого README.md.
+**Актуальный бот: [@RepoParsBot](https://t.me/RepoParsBot)**
 
-### Использование
+
+## Использование
+В любом чате Telegram:
+```
+@RepoParsBot https://github.com/username/repo
+```
+
+## Установка
 ```bash
 git clone https://github.com/chuhan3131/repo-parser-bot.git
-Укажите токен бота в переменную API_TOKEN
-pip install aiogram requests
+cd repo-parser-bot
+echo "BOT_TOKEN=your_token" > .env
+pip install -r requirements.txt
 python main.py
+```
+
+### Канал: [@chuhandev](https://t.me/chuhandev)
+### Чат: [@chuhanchat](https://t.me/chuhanchat)
+
