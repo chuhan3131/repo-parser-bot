@@ -1,18 +1,27 @@
 # GitHub Repo Parser Bot
-Инлайн-бот для анализа GitHub репозиториев. Получает описание, структуру файлов и README по ссылке.
 
-<img width="368,75" height="800" alt="изображение" src="https://github.com/user-attachments/assets/c36159d3-d695-46f3-aba0-fc50a38b80da" />
+An inline Telegram bot for analyzing GitHub repositories.
+It retrieves the **description**, **file structure**, and **README** from a given link.
 
-**Актуальный бот: [@RepoParsBot](https://t.me/RepoParsBot)**
+<img width="590" height="1280" alt="изображение" src="https://github.com/user-attachments/assets/f0f1b669-8988-45cd-9683-13576fbfb61a" />
 
 
-## Использование
-В любом чате Telegram:
+**Live bot: [@RepoParsBot](https://t.me/RepoParsBot)**
+
+---
+
+## 💡 Usage
+
+In any Telegram chat:
+
 ```
 @RepoParsBot https://github.com/username/repo
 ```
 
-## Установка
+---
+
+## ⚙️ Installation
+
 ```bash
 git clone https://github.com/chuhan3131/repo-parser-bot.git
 cd repo-parser-bot
@@ -21,6 +30,8 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### Канал: [@chuhandev](https://t.me/chuhandev)
-### Чат: [@chuhanchat](https://t.me/chuhanchat)
+---
 
+### 📢 Channel: [@chuhandev](https://t.me/chuhandev)
+
+### 💬 Chat: [@chuhanchat](https://t.me/chuhanchat)
