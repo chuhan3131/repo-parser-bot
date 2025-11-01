@@ -19,16 +19,16 @@ logger = logging.getLogger(__name__)
 
 API_TOKEN = os.getenv('BOT_TOKEN')
 if not API_TOKEN:
-    raise ValueError("BOT_TOKEN не найден в .env файле")
+    raise ValueError("BOT_TOKEN not found in .env file")
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 @lru_cache(maxsize=100)
 async def get_repo_info(repo_url: str):
-    """Асинхронное получение информации о репозитории с кэшированием"""
+    """Asynchronously fetch GitHub repository information with caching"""
     try:
-        # Валидация URL
+        # Validate URL
         if not is_valid_github_url(repo_url):
             return None, None, None
 
@@ -36,7 +36,7 @@ async def get_repo_info(repo_url: str):
         owner, repo = parts[3], parts[4].replace(".git", "")
 
         async with aiohttp.ClientSession() as session:
-            # Получение основной информации
+            # Fetch main info
             repo_info_url = f"https://api.github.com/repos/{owner}/{repo}"
             async with session.get(repo_info_url) as response:
                 if response.status != 200:
@@ -46,26 +46,26 @@ async def get_repo_info(repo_url: str):
             if "message" in info:
                 return None, None, None
 
-            # Извлечение данных
-            description = info.get("description", "нет описания") or "нет описания"
+            # Extract data
+            description = info.get("description", "no description") or "no description"
             stars = info.get("stargazers_count", 0)
-            language = info.get("language", "не указан")
+            language = info.get("language", "not specified")
             default_branch = info.get("default_branch", "main")
             forks_count = info.get("forks_count", 0)
             issues_count = info.get("open_issues_count", 0)
             updated_at = info.get("updated_at", "")
 
-            # Форматирование информации
+            # Format information
             repo_info = (
-                f"<b>📦 Репозиторий: <a href='https://github.com/{owner}'>{owner}</a>/<a href='https://github.com/{owner}/{repo}'>{repo}</a></b>\n"
-                f"⭐ <b>Звёзды:</b> <code>{stars}</code>\n"
-                f"💻 <b>Язык:</b> <code>{language}</code>\n"
-                f"🍴 <b>Форки:</b> <code>{forks_count}</code>\n"
+                f"<b>📦 Repository: <a href='https://github.com/{owner}'>{owner}</a>/<a href='https://github.com/{owner}/{repo}'>{repo}</a></b>\n"
+                f"⭐ <b>Stars:</b> <code>{stars}</code>\n"
+                f"💻 <b>Language:</b> <code>{language}</code>\n"
+                f"🍴 <b>Forks:</b> <code>{forks_count}</code>\n"
                 f"🚨 <b>Issues:</b> <code>{issues_count}</code>\n"
-                f"📝 <b>Описание:</b> <code>{description}</code>\n"
+                f"📝 <b>Description:</b> <code>{description}</code>\n"
             )
 
-            # Получение структуры файлов
+            # Fetch file tree
             tree_url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1"
             async with session.get(tree_url) as response:
                 if response.status == 200:
@@ -73,33 +73,33 @@ async def get_repo_info(repo_url: str):
                     files = [item["path"] for item in tree_data.get("tree", []) if item["type"] == "blob"]
                     tree_text = build_tree(files, limit=50)
                     if len(files) > 50:
-                        tree_text += f"\n...и ещё {len(files) - 50} файлов"
+                        tree_text += f"\n...and {len(files) - 50} more files"
                 else:
-                    tree_text = "Не удалось получить структуру файлов"
+                    tree_text = "Failed to fetch file structure"
 
-            # Получение README
+            # Fetch README
             readme_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{default_branch}/README.md"
             async with session.get(readme_url) as response:
                 if response.status == 200:
                     readme_text = await response.text()
                     readme_text = clean_readme_text(readme_text)
                     if len(readme_text) > 1000:
-                        readme_text = readme_text[:1000] + "\n... (обрезано)"
+                        readme_text = readme_text[:1000] + "\n... (truncated)"
                 else:
-                    readme_text = "README.md не найден"
+                    readme_text = "README.md not found"
 
             return repo_info, tree_text, readme_text
 
     except Exception as e:
-        logger.error(f"Ошибка при получении информации о репозитории: {e}")
+        logger.error(f"Error fetching repository info: {e}")
         return None, None, None
 
 def is_valid_github_url(url: str) -> bool:
-    """Проверка валидности GitHub URL"""
+    """Validate if the URL is a GitHub repository link"""
     return url.startswith(("http://github.com/", "https://github.com/")) and len(url.split("/")) >= 5
 
 def clean_readme_text(text: str) -> str:
-    """Очистка README от неподдерживаемых тегов и форматирования"""
+    """Clean README from unsupported tags and formatting"""
     text = re.sub(r'<img[^>]*>', '', text)
     text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
     text = text.replace('<', '&lt;').replace('>', '&gt;')
@@ -107,7 +107,7 @@ def clean_readme_text(text: str) -> str:
     return text.strip()
 
 def build_tree(paths: list[str], limit: int = 50) -> str:
-    """Построение дерева файлов"""
+    """Build a visual file tree"""
     tree = lambda: defaultdict(tree)
     root = tree()
 
@@ -132,20 +132,20 @@ def build_tree(paths: list[str], limit: int = 50) -> str:
     return "\n".join(lines)
 
 def truncate_text(text: str, max_length: int = 4000) -> str:
-    """Обрезка текста до максимальной длины"""
+    """Truncate text to Telegram message limit"""
     if len(text) > max_length:
         return text[:max_length-3] + "..."
     return text
 
 @dp.inline_query()
 async def inline_handler(inline_query: types.InlineQuery):
-    """Обработчик инлайн запросов"""
+    """Inline query handler"""
     query = inline_query.query.strip()
     
     if not query or not query.startswith(("http://github.com/", "https://github.com/")):
         return
 
-    logger.info(f"Обработка запроса: {query}")
+    logger.info(f"Processing query: {query}")
 
     repo_info, tree_text, readme_text = await get_repo_info(query)
     
@@ -153,10 +153,10 @@ async def inline_handler(inline_query: types.InlineQuery):
         results = [
             InlineQueryResultArticle(
                 id="error",
-                title="Ошибка",
-                description="Не удалось получить информацию о репозитории",
+                title="Error",
+                description="Failed to fetch repository information",
                 input_message_content=InputTextMessageContent(
-                    message_text="❌ Не удалось получить информацию о репозитории. Проверьте URL и попробуйте снова.",
+                    message_text="❌ Failed to fetch repository information. Please check the URL and try again.",
                     parse_mode='HTML'
                 )
             )
@@ -164,42 +164,42 @@ async def inline_handler(inline_query: types.InlineQuery):
         await inline_query.answer(results, cache_time=1)
         return
 
-    # Формирование итогового текста
+    # Build final message text
     result_text = (
         f"{repo_info}\n"
-        f"<b>📂 Структура файлов:</b>\n<code>{tree_text}</code>\n\n"
+        f"<b>📂 File Structure:</b>\n<code>{tree_text}</code>\n\n"
         "<b>───────────────────────</b>\n\n"
         f"<b>📖 README:</b>\n<code>{readme_text}</code>"
     )
 
-    # Обрезка текста если превышен лимит Telegram
+    # Truncate if exceeds Telegram message limit
     result_text = truncate_text(result_text)
 
     results = [
         InlineQueryResultArticle(
             id="1",
-            title="Анализ репозитория GitHub",
+            title="GitHub Repository Analysis",
             input_message_content=InputTextMessageContent(
                 message_text=result_text,
                 parse_mode='HTML'
             ),
-            description="Показать информацию о репозитории",
+            description="Show repository information",
             thumb_url="https://github.com/favicon.ico",
             thumb_width=64,
             thumb_height=64
         )
     ]
 
-    await inline_query.answer(results, cache_time=300)  # Кэш на 5 минут
-    logger.info(f"Успешно обработан запрос: {query}")
+    await inline_query.answer(results, cache_time=300)  # Cache for 5 minutes
+    logger.info(f"Query successfully processed: {query}")
 
 async def main():
-    """Основная функция"""
-    logger.info("Бот запущен")
+    """Main entry point"""
+    logger.info("Bot started")
     try:
         await dp.start_polling(bot)
     except Exception as e:
-        logger.error(f"Ошибка при запуске бота: {e}")
+        logger.error(f"Error while running bot: {e}")
     finally:
         await bot.session.close()
 
