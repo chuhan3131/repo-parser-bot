@@ -6,7 +6,7 @@ It retrieves the **description**, **file structure**, and **README** from a give
 <img width="590" height="1280" alt="изображение" src="https://github.com/user-attachments/assets/f0f1b669-8988-45cd-9683-13576fbfb61a" />
 
 
-**Live bot: [@RepoParsBot](https://t.me/RepoParsBot)**
+~Live bot: [@RepoParsBot](https://t.me/RepoParsBot)~
 
 ---
 
